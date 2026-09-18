@@ -1,0 +1,151 @@
+{
+  "module_sign_in_enabled": {
+    "description": "【模块开关】签到",
+    "type": "bool",
+    "default": true
+  },
+  "module_shop_enabled": {
+    "description": "【模块开关】商店",
+    "type": "bool",
+    "default": true
+  },
+  "module_bank_enabled": {
+    "description": "【模块开关】小真寻银行",
+    "type": "bool",
+    "default": true
+  },
+  "module_russian_enabled": {
+    "description": "【模块开关】俄罗斯轮盘",
+    "type": "bool",
+    "default": true
+  },
+  "module_redbag_enabled": {
+    "description": "【模块开关】金币红包",
+    "type": "bool",
+    "default": true
+  },
+  "module_farm_enabled": {
+    "description": "【模块开关】真寻农场",
+    "type": "bool",
+    "default": true
+  },
+  "sign_card1_prob": {
+    "description": "签到随机事件：好感度双倍加持卡Ⅰ掉率",
+    "type": "float",
+    "default": 0.2
+  },
+  "sign_card2_prob": {
+    "description": "签到随机事件：好感度双倍加持卡Ⅱ掉率",
+    "type": "float",
+    "default": 0.09
+  },
+  "sign_card3_prob": {
+    "description": "签到随机事件：好感度双倍加持卡Ⅲ掉率",
+    "type": "float",
+    "default": 0.05
+  },
+  "max_sign_gold": {
+    "description": "签到金币上限（含好感度加成封顶）",
+    "type": "int",
+    "default": 200
+  },
+  "bank_sign_max_deposit": {
+    "description": "银行存款上限 = 好感度 × 该值（保底100）",
+    "type": "int",
+    "default": 100
+  },
+  "bank_max_daily_deposit_count": {
+    "description": "每日存款次数上限",
+    "type": "int",
+    "default": 3
+  },
+  "bank_rate_min": {
+    "description": "存款小时利率下限",
+    "type": "float",
+    "default": 0.0005
+  },
+  "bank_rate_max": {
+    "description": "存款小时利率上限",
+    "type": "float",
+    "default": 0.001
+  },
+  "bank_impression_event": {
+    "description": "好感度达到该值可触发加息事件",
+    "type": "float",
+    "default": 25
+  },
+  "bank_impression_event_prop": {
+    "description": "加息事件触发概率",
+    "type": "float",
+    "default": 0.3
+  },
+  "bank_impression_event_rate_min": {
+    "description": "加息事件利率加成下限",
+    "type": "float",
+    "default": 0.00001
+  },
+  "bank_impression_event_rate_max": {
+    "description": "加息事件利率加成上限",
+    "type": "float",
+    "default": 0.0003
+  },
+  "russian_max_bet_gold": {
+    "description": "轮盘最大赌注金币",
+    "type": "int",
+    "default": 1000
+  },
+  "redbag_timeout": {
+    "description": "红包过期时间（秒）",
+    "type": "int",
+    "default": 600
+  },
+  "redbag_interval": {
+    "description": "同一用户发红包冷却（秒）",
+    "type": "int",
+    "default": 60
+  },
+  "redbag_rank_num": {
+    "description": "红包结算榜显示人数",
+    "type": "int",
+    "default": 10
+  },
+  "farm_exchange_rate": {
+    "description": "农场币兑换倍数（1金币=多少农场币）",
+    "type": "float",
+    "default": 1
+  },
+  "farm_exchange_tax": {
+    "description": "购买农场币手续费率（按比例额外扣金币）",
+    "type": "float",
+    "default": 0.1
+  },
+  "render_enabled": {
+    "description": "是否启用 HTML 卡片渲染（依赖 AstrBot t2i 渲染端点；关闭则输出纯文本）",
+    "type": "bool",
+    "default": true
+  },
+  "bot_name": {
+    "description": "机器人昵称（用于卡片问候语展示）",
+    "type": "string",
+    "default": "真寻"
+  },
+  "farm_prefix": {
+    "description": "农场命令前缀（默认空前缀，直接发命令如 我的农场）",
+    "type": "string",
+    "default": ""
+  },
+  "farm_server_url": {
+    "description": "农场资源服务器地址（作物数据更新用）",
+    "type": "string",
+    "default": "http://diuse.work"
+  },
+  "farm_draw_quality": {
+    "description": "农场绘图质量",
+    "type": "string",
+    "default": "low",
+    "options": [
+      "low",
+      "high"
+    ]
+  }
+}

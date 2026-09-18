@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>真寻经济控制台</title>
+<script src="/api/plugin/page/bridge-sdk.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #FBE4E4;
+    font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    color: #4a3038;
+    min-height: 100vh;
+    padding: 24px 20px 60px;
+  }
+
+  /* ---------- 顶部 ---------- */
+  .page-header { max-width: 1080px; margin: 0 auto 20px; }
+  .page-title {
+    color: #f67186; font-size: 30px; font-weight: 800;
+    letter-spacing: 2px; margin-bottom: 14px;
+    text-shadow: 0 2px 0 #fff;
+  }
+  .stats-bar {
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(246, 113, 134, .18);
+    display: flex; flex-wrap: wrap; padding: 14px 10px;
+  }
+  .stat-item { flex: 1 1 140px; text-align: center; padding: 6px 10px; }
+  .stat-item + .stat-item { border-left: 2px dashed #FBE4E4; }
+  .stat-label { font-size: 13px; color: #b58a95; margin-bottom: 4px; }
+  .stat-value { font-size: 24px; font-weight: 800; color: #ad1457; }
+
+  /* ---------- 模块卡片 ---------- */
+  .grid {
+    max-width: 1080px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 18px;
+  }
+  .card {
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(246, 113, 134, .18);
+    padding: 20px; display: flex; flex-direction: column; gap: 8px;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover { transform: translateY(-3px); box-shadow: 0 8px 22px rgba(246, 113, 134, .28); }
+  .card-head { display: flex; align-items: center; gap: 10px; }
+  .card-title { color: #f67186; font-size: 21px; font-weight: 800; }
+  .badge-version {
+    background: #FBE4E4; color: #ad1457; font-size: 12px; font-weight: 700;
+    border-radius: 999px; padding: 2px 10px;
+  }
+  .badge-state { margin-left: auto; font-size: 12px; font-weight: 700; }
+  .badge-state.on { color: #1c9e6b; }
+  .badge-state.off { color: #9e9e9e; }
+  .card-id { color: #bdbdbd; font-size: 12px; font-family: Consolas, monospace; }
+  .card-desc { color: #8a6a72; font-size: 14px; min-height: 20px; }
+  .card-actions { display: flex; gap: 10px; margin-top: 8px; }
+
+  .btn {
+    border: none; border-radius: 999px; padding: 8px 20px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    transition: filter .15s ease, transform .1s ease;
+  }
+  .btn:hover { filter: brightness(1.06); }
+  .btn:active { transform: scale(.96); }
+  .btn-on  { background: #98e6c3; color: #0f7b4d; }
+  .btn-off { background: #dcdcdc; color: #757575; }
+  .btn-cfg { background: #bfe3ff; color: #1565c0; }
+  .btn-save { background: #f67186; color: #fff; padding: 10px 34px; font-size: 15px; }
+
+  /* ---------- 配置抽屉 ---------- */
+  .mask {
+    position: fixed; inset: 0; background: rgba(173, 20, 87, .25);
+    display: none; align-items: center; justify-content: center;
+    z-index: 50; padding: 16px;
+  }
+  .mask.show { display: flex; }
+  .drawer {
+    background: #fff; border-radius: 16px; width: 100%; max-width: 560px;
+    max-height: 82vh; overflow-y: auto; padding: 24px;
+    box-shadow: 0 12px 40px rgba(173, 20, 87, .35);
+  }
+  .drawer-title { color: #f67186; font-size: 20px; font-weight: 800; margin-bottom: 16px; }
+  .form-item { margin-bottom: 16px; }
+  .form-label { display: block; font-size: 14px; color: #6b4a54; margin-bottom: 6px; font-weight: 600; }
+  .form-input, .form-select {
+    width: 100%; border: 2px solid #FBE4E4; border-radius: 10px;
+    padding: 8px 12px; font-size: 14px; color: #4a3038; outline: none;
+    transition: border-color .15s ease; background: #fff;
+  }
+  .form-input:focus, .form-select:focus { border-color: #f67186; }
+  .form-empty { color: #b58a95; font-size: 14px; text-align: center; padding: 24px 0; }
+  .drawer-foot { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+
+  /* bool 开关 */
+  .switch { position: relative; display: inline-block; width: 48px; height: 26px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider {
+    position: absolute; inset: 0; background: #e0e0e0; border-radius: 999px;
+    transition: background .2s ease; cursor: pointer;
+  }
+  .slider::before {
+    content: ""; position: absolute; width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; top: 3px; left: 3px; transition: transform .2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,.25);
+  }
+  .switch input:checked + .slider { background: #f67186; }
+  .switch input:checked + .slider::before { transform: translateX(22px); }
+
+  /* ---------- 提示 ---------- */
+  #error-banner {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: #ad1457; color: #fff; font-size: 14px; font-weight: 600;
+    padding: 12px 44px 12px 16px; display: none;
+    box-shadow: 0 4px 12px rgba(173, 20, 87, .4);
+  }
+  #error-banner.show { display: block; animation: slideDown .25s ease; }
+  #error-close {
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: #fff; font-size: 18px; cursor: pointer;
+  }
+  @keyframes slideDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+
+  #toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: #f67186; color: #fff; border-radius: 999px; padding: 10px 28px;
+    font-size: 14px; font-weight: 700; z-index: 100; opacity: 0;
+    transition: transform .25s ease, opacity .25s ease;
+    box-shadow: 0 6px 18px rgba(246, 113, 134, .45);
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+  /* ---------- 加载动画 ---------- */
+  #loading {
+    position: fixed; inset: 0; background: #FBE4E4; z-index: 200;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+  }
+  #loading.hide { display: none; }
+  .spinner {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 5px solid #fff; border-top-color: #f67186;
+    animation: spin .8s linear infinite;
+  }
+  .loading-text { color: #f67186; font-weight: 700; letter-spacing: 2px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ---------- 响应式：窄屏单列 ---------- */
+  @media (max-width: 640px) {
+    .grid { grid-template-columns: 1fr; }
+    .page-title { font-size: 24px; }
+    .stat-item { flex: 1 1 45%; }
+    .stat-item + .stat-item { border-left: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="loading-text">真寻加载中...</div>
+</div>
+
+<div id="error-banner">
+  <span id="error-text"></span>
+  <button id="error-close" type="button">✕</button>
+</div>
+
+<header class="page-header">
+  <h1 class="page-title">真寻经济控制台</h1>
+  <div class="stats-bar" id="stats-bar"></div>
+</header>
+
+<main class="grid" id="module-grid"></main>
+
+<div class="mask" id="drawer-mask">
+  <div class="drawer">
+    <div class="drawer-title" id="drawer-title"></div>
+    <div id="drawer-body"></div>
+    <div class="drawer-foot">
+      <button class="btn btn-off" id="drawer-cancel" type="button">取消</button>
+      <button class="btn btn-save" id="drawer-save" type="button">保存</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // 配置项分组规则（与后端约定一致；render_enabled / module_*_enabled 不进抽屉）
+  var GROUP_RULES = [
+    { module: "sign_in", match: function (k) { return k.indexOf("sign_card") === 0 || k === "max_sign_gold" || k === "bot_name"; } },
+    { module: "bank",    match: function (k) { return k.indexOf("bank_") === 0; } },
+    { module: "russian", match: function (k) { return k.indexOf("russian_") === 0; } },
+    { module: "redbag",  match: function (k) { return k.indexOf("redbag_") === 0; } },
+    { module: "farm",    match: function (k) { return k.indexOf("farm_") === 0; } }
+  ];
+  var STAT_DEFS = [
+    ["user_count", "总用户"], ["total_gold", "总金币"],
+    ["today_sign_count", "今日签到"], ["bank_total_amount", "银行总存款"]
+  ];
+
+  var bridge = null;
+  var state = null;
+  var drawerInputs = [];
+  var drawerModule = null;
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, text) {
+    var node = document.createElement(tag);
+    if (cls) node.className = cls;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  function waitForBridge() {
+    return new Promise(function (resolve, reject) {
+      var n = 0;
+      var timer = setInterval(function () {
+        if (window.AstrBotPluginPage) {
+          clearInterval(timer);
+          resolve(window.AstrBotPluginPage);
+        } else if (++n > 100) {
+          clearInterval(timer);
+          reject(new Error("AstrBotPluginPage bridge 加载超时"));
+        }
+      }, 50);
+    });
+  }
+
+  var errorTimer = null;
+  function showError(msg) {
+    $("error-text").textContent = "操作失败捏：" + msg;
+    $("error-banner").classList.add("show");
+    clearTimeout(errorTimer);
+    errorTimer = setTimeout(hideError, 6000);
+  }
+  function hideError() { $("error-banner").classList.remove("show"); }
+
+  var toastTimer = null;
+  function toast(msg) {
+    var node = $("toast");
+    node.textContent = msg;
+    node.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { node.classList.remove("show"); }, 2200);
+  }
+
+  // ---------- 渲染 ----------
+
+  function renderStats() {
+    var bar = $("stats-bar");
+    bar.textContent = "";
+    STAT_DEFS.forEach(function (def) {
+      var item = el("div", "stat-item");
+      item.appendChild(el("div", "stat-label", def[1]));
+      var val = state.stats ? state.stats[def[0]] : 0;
+      item.appendChild(el("div", "stat-value", String(val == null ? 0 : val)));
+      bar.appendChild(item);
+    });
+  }
+
+  function renderGrid() {
+    var grid = $("module-grid");
+    grid.textContent = "";
+    state.modules.forEach(function (mod) {
+      var card = el("div", "card");
+
+      var head = el("div", "card-head");
+      head.appendChild(el("span", "card-title", mod.name));
+      head.appendChild(el("span", "badge-version", mod.version));
+      head.appendChild(el("span", "badge-state " + (mod.enabled ? "on" : "off"),
+        mod.enabled ? "● 运行中" : "○ 已关闭"));
+      card.appendChild(head);
+
+      card.appendChild(el("div", "card-id", mod.id));
+      card.appendChild(el("div", "card-desc", mod.desc));
+
+      var actions = el("div", "card-actions");
+      var toggle = el("button", "btn " + (mod.enabled ? "btn-off" : "btn-on"),
+        mod.enabled ? "关闭" : "开启");
+      toggle.type = "button";
+      toggle.addEventListener("click", function () { onToggle(mod); });
+      var cfg = el("button", "btn btn-cfg", "配置");
+      cfg.type = "button";
+      cfg.addEventListener("click", function () { openDrawer(mod); });
+      actions.appendChild(toggle);
+      actions.appendChild(cfg);
+      card.appendChild(actions);
+
+      grid.appendChild(card);
+    });
+  }
+
+  // ---------- 配置抽屉 ----------
+
+  function keysForModule(moduleId) {
+    var rule = null;
+    for (var i = 0; i < GROUP_RULES.length; i++) {
+      if (GROUP_RULES[i].module === moduleId) { rule = GROUP_RULES[i].match; break; }
+    }
+    if (!rule) return [];
+    return Object.keys(state.schema).filter(function (k) {
+      return k !== "render_enabled" && k.indexOf("module_") !== 0 && rule(k);
+    });
+  }
+
+  function openDrawer(mod) {
+    drawerModule = mod;
+    drawerInputs = [];
+    $("drawer-title").textContent = mod.name + " - 配置";
+    var body = $("drawer-body");
+    body.textContent = "";
+
+    var keys = keysForModule(mod.id);
+    if (!keys.length) {
+      body.appendChild(el("div", "form-empty", "该模块暂无可配置项捏~"));
+    }
+    keys.forEach(function (key) {
+      var item = state.schema[key] || {};
+      var type = item.type || "string";
+      var current = state.config[key];
+
+      var wrap = el("div", "form-item");
+      wrap.appendChild(el("label", "form-label", item.description || key));
+
+      var input;
+      if (type === "bool") {
+        var sw = el("label", "switch");
+        input = el("input");
+        input.type = "checkbox";
+        input.checked = !!current;
+        sw.appendChild(input);
+        sw.appendChild(el("span", "slider"));
+        wrap.appendChild(sw);
+      } else if (item.options) {
+        input = el("select", "form-select");
+        item.options.forEach(function (opt) {
+          var o = el("option", null, String(opt));
+          o.value = opt;
+          input.appendChild(o);
+        });
+        input.value = current == null ? "" : String(current);
+        wrap.appendChild(input);
+      } else if (type === "int" || type === "float") {
+        input = el("input", "form-input");
+        input.type = "number";
+        if (type === "float") input.step = "any";
+        else input.step = "1";
+        input.placeholder = "默认: " + String(item.default);
+        if (current !== undefined && current !== null) input.value = String(current);
+        wrap.appendChild(input);
+      } else {
+        input = el("input", "form-input");
+        input.type = "text";
+        input.placeholder = "默认: " + String(item.default);
+        if (current !== undefined && current !== null) input.value = String(current);
+        wrap.appendChild(input);
+      }
+      drawerInputs.push({ key: key, type: type, el: input });
+      body.appendChild(wrap);
+    });
+
+    $("drawer-mask").classList.add("show");
+  }
+
+  function closeDrawer() {
+    $("drawer-mask").classList.remove("show");
+    drawerModule = null;
+    drawerInputs = [];
+  }
+
+  async function onSaveConfig() {
+    var payload = {};
+    for (var i = 0; i < drawerInputs.length; i++) {
+      var rec = drawerInputs[i];
+      if (rec.type === "bool") { payload[rec.key] = rec.el.checked; continue; }
+      var raw = rec.el.value.trim();
+      if (raw === "") continue; // 未填写则不提交
+      if (rec.type === "int" || rec.type === "float") {
+        var n = Number(raw);
+        if (!isFinite(n) || (rec.type === "int" && Math.floor(n) !== n)) {
+          showError("配置项 " + rec.key + " 需要" + (rec.type === "int" ? "整数" : "数字"));
+          return;
+        }
+        payload[rec.key] = n;
+      } else {
+        payload[rec.key] = rec.el.value;
+      }
+    }
+    if (!Object.keys(payload).length) { toast("没有需要保存的改动捏~"); return; }
+    try {
+      await bridge.apiPost("console/config", payload);
+      Object.keys(payload).forEach(function (k) { state.config[k] = payload[k]; });
+      toast("已保存");
+      closeDrawer();
+    } catch (e) {
+      showError(e.message || String(e));
+    }
+  }
+
+  // ---------- 模块开关 ----------
+
+  async function onToggle(mod) {
+    try {
+      await bridge.apiPost("console/module", { module: mod.id, enabled: !mod.enabled });
+      mod.enabled = !mod.enabled;
+      renderGrid();
+      toast("「" + mod.name + "」已" + (mod.enabled ? "开启" : "关闭"));
+    } catch (e) {
+      showError(e.message || String(e));
+    }
+  }
+
+  // ---------- 初始化 ----------
+
+  $("error-close").addEventListener("click", hideError);
+  $("drawer-cancel").addEventListener("click", closeDrawer);
+  $("drawer-save").addEventListener("click", onSaveConfig);
+  $("drawer-mask").addEventListener("click", function (e) {
+    if (e.target === this) closeDrawer();
+  });
+
+  (async function init() {
+    try {
+      bridge = await waitForBridge();
+      await bridge.ready();
+      state = await bridge.apiGet("console/state");
+      renderStats();
+      renderGrid();
+    } catch (e) {
+      showError((e && e.message) || String(e));
+    } finally {
+      $("loading").classList.add("hide");
+    }
+  })();
+})();
+</script>
+</body>
+</html>

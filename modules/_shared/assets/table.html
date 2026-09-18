@@ -1,0 +1,224 @@
+<!--
+  移植自 zhenxun_bot/resources/themes/default 的通用表格卡片（ui.table）：
+  - 布局包装：partials/_base.html（doctype/head/body 结构，主题样式以内联 <style> 合并）
+  - 组件模板：components/core/table/main.html（wrapper 宏展开为 container div，单元格渲染逻辑逐字节保留）
+  - 组件样式：components/core/table/style.css（主题 CSS 变量已按 palette.json 固化为字面值）
+  - 基础样式：assets/css/base/_reset.css（body 字体与抗锯齿）
+  - 字体：AlibabaHealthFont2 / fzrzFont 由 table_card.py 以 base64 内联注入（替换 __INLINE_FONTS__ 占位）
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ data.title }}</title>
+    <style>
+/*__INLINE_FONTS__*/
+/* --- assets/css/base/_reset.css --- */
+body {
+    font-family: "AlibabaHealthFont2", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+    </style>
+    <style>
+/* --- components/core/table/style.css（CSS 变量已固化为 palette.json 字面值） --- */
+body {
+    background-color: #EAEDF2;
+    padding: 20px;
+}
+
+.container {
+    background-color: #FFFFFF;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(246, 113, 134, 0.2);
+    overflow: hidden;
+}
+
+.header {
+    padding: 25px 30px;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 32px;
+    color: #f67186;
+    font-family: fzrzFont, sans-serif;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+.header p {
+    margin: 8px 0 0;
+    color: #666666;
+    font-size: 14px;
+}
+
+.header p code {
+    background-color: rgba(246, 113, 134, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: monospace;
+    color: #f67186;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-size: 15px;
+    color: #333333;
+}
+
+th, td {
+    padding: 18px 20px;
+    text-align: left;
+    vertical-align: middle;
+    border: none;
+}
+
+tbody td {
+    font-family: "AlibabaHealthFont2", sans-serif;
+    border-bottom: 1px solid rgba(246, 113, 134, 0.15);
+}
+
+thead {
+}
+
+thead th {
+    color: #ad1457;
+    font-family: "fzrzFont", sans-serif;
+    font-weight: bold;
+    font-size: 17px;
+    background-color: #ffffff;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-bottom: 2px solid #fde2e6;
+}
+
+tbody tr {
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f6f8fa;
+}
+
+.cell-image {
+    vertical-align: middle;
+    border-radius: 4px;
+}
+
+.cell-image.circular {
+    border-radius: 50%;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: bold;
+    color: white;
+    white-space: nowrap;
+}
+
+.status-badge.ok, .status-badge.success { background-color: #67C23A; }
+.status-badge.error { background-color: #F56C6C; }
+.status-badge.warning { background-color: #E6A23C; }
+.status-badge.info { background-color: #909399; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>{{ data.title }}</h1>
+        {% if data.tip %}
+        <p>{{ data.tip | replace("`", "<code>") | replace("`", "</code>") | safe }}</p>
+        {% endif %}
+    </div>
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    {% for header in data.headers %}
+                    <th>{{ header }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in data.rows %}
+                <tr>
+                    {% for cell in row %}
+                    <td>
+                        {% if cell and cell.type == 'image' %}
+                            <img class="cell-image {{ 'circular' if cell.shape == 'circle' }}"
+                                 src="{{ cell.src }}"
+                                 alt="{{ cell.alt }}"
+                                 width="{{ cell.width }}"
+                                 height="{{ cell.height }}">
+                        {% elif cell and cell.type == 'text' %}
+                            <span class="cell-text"
+                                  style="font-weight: {{ 'bold' if cell.bold else 'normal' }}; color: {{ cell.color if cell.color else 'inherit' }};">
+                                {{ cell.content }}
+                            </span>
+                        {% elif cell and cell.type == 'rich_text' %}
+                            <div class="rich-text-cell" style="display: flex; flex-direction: {{ cell.direction }}; gap: {{ cell.gap }};">
+                                {% for span in cell.spans %}
+                                    {% set classes = ['rich-text-span'] %}
+                                    {% if span.bold %}{% set _ = classes.append('bold') %}{% endif %}
+                                    {% if span.italic %}{% set _ = classes.append('italic') %}{% endif %}
+                                    {% if span.underline %}{% set _ = classes.append('underline') %}{% endif %}
+                                    {% if span.strikethrough %}{% set _ = classes.append('strikethrough') %}{% endif %}
+                                    {% if span.code %}{% set _ = classes.append('code') %}{% endif %}
+
+                                    {% set styles = [] %}
+                                    {% if span.color %}{% set _ = styles.append('color: ' ~ span.color) %}{% endif %}
+                                    {% if span.font_size %}{% set _ = styles.append('font-size: ' ~ span.font_size) %}{% endif %}
+                                    {% if span.font_family %}{% set _ = styles.append('font-family: ' ~ span.font_family) %}{% endif %}
+
+                                    <span class="{{ classes | join(' ') }}" style="{{ styles | join('; ') }}">
+                                        {{ span.text | safe }}
+                                    </span>
+                                {% endfor %}
+                            </div>
+                        {% elif cell and cell.type == 'badge' %}
+                            <span class="status-badge {{ cell.status_type }}">
+                                {{ cell.text }}
+                            </span>
+                        {% elif cell and cell.type == 'progress_bar' %}
+                            <div class="progress-container">
+                                <div class="progress-bar {{ cell.color_scheme }} {% if cell.animated %}animated{% endif %}" style="width: {{ cell.progress }}%;">
+                                    <div class="progress-label-wrapper" style="--progress: {{ cell.progress }}">
+                                        <span class="progress-label-inner">{{ cell.label if cell.label else '' }}</span>
+                                        <span class="progress-label-outer">{{ cell.label if cell.label else '' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% elif cell is mapping and 'available' in cell %}
+                            <span class="status-badge {{ 'ok' if cell.available else 'error' }}">
+                                <span>{{ cell.text }}</span>
+                            </span>
+                        {% else %}
+                            {{ cell }}
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+</html>

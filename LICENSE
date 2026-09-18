@@ -1,0 +1,9 @@
+本插件移植自以下项目，遵循其许可证要求：
+
+- zhenxun_bot (https://github.com/zhenxun-org/zhenxun_bot): GNU AFFERO GENERAL PUBLIC LICENSE v3
+- zhenxun_plugin_farm / astrbot_plugin_farm (https://github.com/Shu-Ying/astrbot_plugin_farm): GNU GENERAL PUBLIC LICENSE v3
+
+因此本插件整体以 GNU AFFERO GENERAL PUBLIC LICENSE v3 发布。
+完整许可证文本见：https://www.gnu.org/licenses/agpl-3.0.txt
+
+farm/ 目录下的代码改编自 Shu-Ying 的 astrbot_plugin_farm（GPLv3），保留原作者署名。

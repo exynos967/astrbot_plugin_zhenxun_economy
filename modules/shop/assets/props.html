@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<!-- 道具背包界面（表格：序号/图标/名称/数量/简介，序号为使用道具 ID，1 起） -->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 640px;
+    font-family: "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: linear-gradient(160deg, #2b2450 0%, #4a3b7a 55%, #6b4d9e 100%);
+    padding: 28px 24px;
+  }
+  .wrapper {
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 18px;
+    padding: 26px 24px 18px;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  }
+  .title {
+    text-align: center;
+    font-size: 26px;
+    font-weight: bold;
+    color: #5a3d99;
+  }
+  .tip {
+    text-align: center;
+    font-size: 13px;
+    color: #9a8bb8;
+    margin-top: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 18px;
+    font-size: 14px;
+  }
+  th {
+    background: #8e6cc9;
+    color: #fff;
+    padding: 9px 8px;
+  }
+  td {
+    padding: 8px;
+    text-align: center;
+    border-bottom: 1px solid #e8e0f5;
+    color: #4a3573;
+  }
+  tr:nth-child(even) td { background: #f6f2fc; }
+  td.des { text-align: left; color: #8d80a8; font-size: 12px; }
+  .icon { width: 40px; height: 40px; border-radius: 8px; object-fit: contain; }
+  .count { font-weight: bold; color: #e8a13c; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <div class="title">{{ user_name }}的道具仓库</div>
+  <div class="tip">通过 使用道具[ID/名称] 令道具生效</div>
+  <table>
+    <tr><th>-</th><th>使用ID</th><th>名称</th><th>数量</th><th>简介</th></tr>
+    {% for row in rows %}
+    <tr>
+      <td>{% if row.icon %}<img class="icon" src="{{ row.icon }}" alt="">{% endif %}</td>
+      <td>{{ row.id }}</td>
+      <td>{{ row.name }}</td>
+      <td class="count">{{ row.count }}</td>
+      <td class="des">{{ row.description }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+</body>
+</html>

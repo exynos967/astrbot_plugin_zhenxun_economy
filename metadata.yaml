@@ -1,0 +1,7 @@
+name: astrbot_plugin_zhenxun_economy
+display_name: 真寻经济系统
+desc: 移植自真寻bot（zhenxun_bot）的经济生态大插件：金币/好感度核心 + 签到、商店、银行、俄罗斯轮盘、金币红包、真寻农场，支持从真寻数据库迁移数据。
+version: v1.0.0
+author: Hare & zhenxun-org & Shu-Ying
+repo: https://github.com/zhenxun-org/zhenxun_bot
+astrbot_version: ">=4.16,<5"
