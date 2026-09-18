@@ -122,7 +122,7 @@ def load_template() -> str:
         # t2i 整页截图会在右侧留下 8px 白条，加载时中和掉
         tmpl += (
             "<style>body{position:static !important;left:0 !important;"
-            "top:0 !important}</style>"
+            "top:0 !important;margin:0 !important;padding:0 !important}</style>"
         )
         _template_cache = tmpl
     return _template_cache

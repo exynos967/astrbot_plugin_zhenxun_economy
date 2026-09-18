@@ -1,10 +1,11 @@
 """用样例数据渲染签到卡片（直连 t2i 服务验证还原度）"""
 import asyncio, sys, types, tempfile
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
+PLUGIN_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PLUGIN_ROOT))
 
 # 复用 conftest 的完整 astrbot stub
-sys.path.insert(0, str(Path(__file__).parent / "tests"))
+sys.path.insert(0, str(PLUGIN_ROOT / "tests"))
 import conftest  # noqa: F401 安装 astrbot stub
 
 import aiohttp
