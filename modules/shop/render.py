@@ -118,6 +118,12 @@ def load_template() -> str:
         )
         # 剩余静态 asset()（bag1/bag2 等）
         tmpl = _inline_assets(tmpl)
+        # 原版 body 的 -8px 绝对定位偏移是给原版渲染器的元素裁剪用的；
+        # t2i 整页截图会在右侧留下 8px 白条，加载时中和掉
+        tmpl += (
+            "<style>body{position:static !important;left:0 !important;"
+            "top:0 !important}</style>"
+        )
         _template_cache = tmpl
     return _template_cache
 

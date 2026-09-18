@@ -100,7 +100,12 @@ def load_template() -> str:
         _template_cache = tmpl.replace(
             "/*__INLINE_STYLE__*/", _build_fonts_css() + "\n" + css
         )
-    return _template_cache
+    # 原版 body 的 -8px 绝对定位偏移是给原版渲染器的元素裁剪用的；
+    # t2i 整页截图会在右侧留下 8px 白条，加载时中和掉
+    return _template_cache + (
+        "<style>body{position:static !important;left:0 !important;"
+        "top:0 !important}</style>"
+    )
 
 
 async def render_card(plugin, card_data: dict) -> str | None:
